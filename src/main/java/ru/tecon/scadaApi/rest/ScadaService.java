@@ -2,6 +2,7 @@ package ru.tecon.scadaApi.rest;
 
 import ru.tecon.scadaApi.ejb.ScadaSB;
 import ru.tecon.scadaApi.entity.FittingsEntity;
+import ru.tecon.scadaApi.entity.HistLogEntity;
 import ru.tecon.scadaApi.entity.TubesEntity;
 import ru.tecon.scadaApi.entity.util.FittingsSerializer;
 import ru.tecon.scadaApi.entity.util.TubesSerializer;
@@ -15,6 +16,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -30,6 +32,79 @@ public class ScadaService {
 
     @EJB
     private ScadaSB scadaBean;
+
+    @GET
+    @Path("/histByMuid")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getHistByMuid(@QueryParam("muid") String muid) {
+        LOGGER.log(Level.INFO, "get hist by muid {0}", muid);
+
+        List<HistLogEntity> hist = scadaBean.getHistByMuid(muid);
+        if (!hist.isEmpty()) {
+            LOGGER.log(Level.INFO, "find hist {0}", hist);
+
+            Jsonb jsonb = JsonbBuilder.create(
+                    new JsonbConfig()
+                            .withNullValues(true)
+                            .withFormatting(true)
+            );
+
+            return Response.ok(jsonb.toJson(hist)).build();
+        }
+
+        LOGGER.log(Level.INFO, "no hist find for muid {0}", muid);
+        return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    @GET
+    @Path("/histByMuidAndDate")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getHistByMuid(@QueryParam("muid") String muid,
+                                  @QueryParam("startDate") LocalDateTime startDate,
+                                  @QueryParam("endDate") LocalDateTime endDate) {
+        LOGGER.log(Level.INFO, "get hist by muid and date {0} startDate {1} endDate {2}", new Object[] {muid, startDate, endDate});
+
+        List<HistLogEntity> hist = scadaBean.getHistByMuidAndDate(muid, startDate, endDate);
+        if (!hist.isEmpty()) {
+            LOGGER.log(Level.INFO, "find hist {0}", hist);
+
+            Jsonb jsonb = JsonbBuilder.create(
+                    new JsonbConfig()
+                            .withNullValues(true)
+                            .withFormatting(true)
+            );
+
+            return Response.ok(jsonb.toJson(hist)).build();
+        }
+
+        LOGGER.log(Level.INFO, "no hist find for muid and date {0} startDate {1} endDate {2}", new Object[] {muid, startDate, endDate});
+        return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    @GET
+    @Path("/histByDate")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getHistByMuid(@QueryParam("startDate") LocalDateTime startDate,
+                                  @QueryParam("endDate") LocalDateTime endDate) {
+        LOGGER.log(Level.INFO, "get hist by date startDate {0} endDate {1}", new Object[] {startDate, endDate});
+
+        List<HistLogEntity> hist = scadaBean.getHistByDate(startDate, endDate);
+        if (!hist.isEmpty()) {
+            LOGGER.log(Level.INFO, "find hist {0}", hist);
+
+            Jsonb jsonb = JsonbBuilder.create(
+                    new JsonbConfig()
+                            .withNullValues(true)
+                            .withFormatting(true)
+            );
+
+            return Response.ok(jsonb.toJson(hist)).build();
+        }
+
+        LOGGER.log(Level.INFO, "no hist find for date startDate {0} endDate {1}", new Object[] {startDate, endDate});
+        return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
 
     @GET
     @Path("/tubeByBrand")

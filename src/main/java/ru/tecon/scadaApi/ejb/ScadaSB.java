@@ -1,6 +1,7 @@
 package ru.tecon.scadaApi.ejb;
 
 import ru.tecon.scadaApi.entity.FittingsEntity;
+import ru.tecon.scadaApi.entity.HistLogEntity;
 import ru.tecon.scadaApi.entity.TubesEntity;
 
 import javax.ejb.LocalBean;
@@ -11,6 +12,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.TypedQuery;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -187,5 +189,26 @@ public class ScadaSB {
             return false;
         }
         return true;
+    }
+
+    public List<HistLogEntity> getHistByMuid(String muid) {
+        TypedQuery<HistLogEntity> query = em.createNamedQuery("HistLogEnity.byMuid", HistLogEntity.class);
+        query.setParameter(1, muid);
+        return query.getResultList();
+    }
+
+    public List<HistLogEntity> getHistByMuidAndDate(String muid, LocalDateTime startDate, LocalDateTime endDate) {
+        TypedQuery<HistLogEntity> query = em.createNamedQuery("HistLogEnity.byMuidAndDate", HistLogEntity.class);
+        query.setParameter(1, muid);
+        query.setParameter(2, startDate);
+        query.setParameter(3, endDate);
+        return query.getResultList();
+    }
+
+    public List<HistLogEntity> getHistByDate(LocalDateTime startDate, LocalDateTime endDate) {
+        TypedQuery<HistLogEntity> query = em.createNamedQuery("HistLogEnity.byDate", HistLogEntity.class);
+        query.setParameter(1, startDate);
+        query.setParameter(2, endDate);
+        return query.getResultList();
     }
 }
