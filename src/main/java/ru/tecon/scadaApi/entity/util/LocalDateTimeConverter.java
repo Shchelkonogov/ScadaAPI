@@ -1,6 +1,7 @@
 package ru.tecon.scadaApi.entity.util;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ParamConverter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -19,7 +20,9 @@ public class LocalDateTimeConverter implements ParamConverter<LocalDateTime> {
         try {
             return LocalDateTime.parse(value, FORMATTER);
         } catch (DateTimeParseException ex) {
-            throw new WebApplicationException(ex);
+            throw new WebApplicationException(ex, Response.Status.BAD_REQUEST);
+        } catch (NullPointerException ex) {
+            return null;
         }
     }
 

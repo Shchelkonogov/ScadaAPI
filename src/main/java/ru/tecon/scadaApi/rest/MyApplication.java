@@ -3,6 +3,6 @@ package ru.tecon.scadaApi.rest;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-@ApplicationPath("/rs")
+@ApplicationPath("/api")
 public class MyApplication extends Application {
 }

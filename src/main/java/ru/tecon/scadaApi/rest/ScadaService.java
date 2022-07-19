@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 /**
  * @author Maksim Shchelkonogov
  */
-@Path("/scada")
+@Path("/")
 public class ScadaService {
 
     private static final Logger LOGGER = Logger.getLogger(ScadaService.class.getName());
@@ -34,83 +34,83 @@ public class ScadaService {
     private ScadaSB scadaBean;
 
     @GET
-    @Path("/histByMuid")
+    @Path("/hist")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getHistByMuid(@QueryParam("muid") String muid) {
-        LOGGER.log(Level.INFO, "get hist by muid {0}", muid);
+    public Response getHist(@QueryParam("muid") String muid,
+                            @QueryParam("startDate") LocalDateTime startDate,
+                            @QueryParam("endDate") LocalDateTime endDate) {
+        if ((muid != null) && (startDate != null) && (endDate != null)) {
+            LOGGER.log(Level.INFO, "get hist by muid and date {0} startDate {1} endDate {2}", new Object[] {muid, startDate, endDate});
 
-        List<HistLogEntity> hist = scadaBean.getHistByMuid(muid);
-        if (!hist.isEmpty()) {
-            LOGGER.log(Level.INFO, "find hist {0}", hist);
+            List<HistLogEntity> hist = scadaBean.getHistByMuidAndDate(muid, startDate, endDate);
+            if (!hist.isEmpty()) {
+                LOGGER.log(Level.INFO, "find hist {0}", hist);
 
-            Jsonb jsonb = JsonbBuilder.create(
-                    new JsonbConfig()
-                            .withNullValues(true)
-                            .withFormatting(true)
-            );
+                Jsonb jsonb = JsonbBuilder.create(
+                        new JsonbConfig()
+                                .withNullValues(true)
+                                .withFormatting(true)
+                );
 
-            return Response.ok(jsonb.toJson(hist)).build();
+                return Response.ok(jsonb.toJson(hist)).build();
+            }
+
+            LOGGER.log(Level.INFO, "no hist find for muid and date {0} startDate {1} endDate {2}", new Object[] {muid, startDate, endDate});
+            return Response.status(Response.Status.NO_CONTENT).build();
         }
 
-        LOGGER.log(Level.INFO, "no hist find for muid {0}", muid);
-        return Response.status(Response.Status.NO_CONTENT).build();
-    }
+        if (muid != null) {
+            LOGGER.log(Level.INFO, "get hist by muid {0}", muid);
 
-    @GET
-    @Path("/histByMuidAndDate")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getHistByMuid(@QueryParam("muid") String muid,
-                                  @QueryParam("startDate") LocalDateTime startDate,
-                                  @QueryParam("endDate") LocalDateTime endDate) {
-        LOGGER.log(Level.INFO, "get hist by muid and date {0} startDate {1} endDate {2}", new Object[] {muid, startDate, endDate});
+            List<HistLogEntity> hist = scadaBean.getHistByMuid(muid);
+            if (!hist.isEmpty()) {
+                LOGGER.log(Level.INFO, "find hist {0}", hist);
 
-        List<HistLogEntity> hist = scadaBean.getHistByMuidAndDate(muid, startDate, endDate);
-        if (!hist.isEmpty()) {
-            LOGGER.log(Level.INFO, "find hist {0}", hist);
+                Jsonb jsonb = JsonbBuilder.create(
+                        new JsonbConfig()
+                                .withNullValues(true)
+                                .withFormatting(true)
+                );
 
-            Jsonb jsonb = JsonbBuilder.create(
-                    new JsonbConfig()
-                            .withNullValues(true)
-                            .withFormatting(true)
-            );
+                return Response.ok(jsonb.toJson(hist)).build();
+            }
 
-            return Response.ok(jsonb.toJson(hist)).build();
+            LOGGER.log(Level.INFO, "no hist find for muid {0}", muid);
+            return Response.status(Response.Status.NO_CONTENT).build();
         }
 
-        LOGGER.log(Level.INFO, "no hist find for muid and date {0} startDate {1} endDate {2}", new Object[] {muid, startDate, endDate});
-        return Response.status(Response.Status.NO_CONTENT).build();
-    }
+        if ((startDate != null) && (endDate != null)) {
+            LOGGER.log(Level.INFO, "get hist by date startDate {0} endDate {1}", new Object[] {startDate, endDate});
 
-    @GET
-    @Path("/histByDate")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getHistByMuid(@QueryParam("startDate") LocalDateTime startDate,
-                                  @QueryParam("endDate") LocalDateTime endDate) {
-        LOGGER.log(Level.INFO, "get hist by date startDate {0} endDate {1}", new Object[] {startDate, endDate});
+            List<HistLogEntity> hist = scadaBean.getHistByDate(startDate, endDate);
+            if (!hist.isEmpty()) {
+                LOGGER.log(Level.INFO, "find hist {0}", hist);
 
-        List<HistLogEntity> hist = scadaBean.getHistByDate(startDate, endDate);
-        if (!hist.isEmpty()) {
-            LOGGER.log(Level.INFO, "find hist {0}", hist);
+                Jsonb jsonb = JsonbBuilder.create(
+                        new JsonbConfig()
+                                .withNullValues(true)
+                                .withFormatting(true)
+                );
 
-            Jsonb jsonb = JsonbBuilder.create(
-                    new JsonbConfig()
-                            .withNullValues(true)
-                            .withFormatting(true)
-            );
+                return Response.ok(jsonb.toJson(hist)).build();
+            }
 
-            return Response.ok(jsonb.toJson(hist)).build();
+            LOGGER.log(Level.INFO, "no hist find for date startDate {0} endDate {1}", new Object[] {startDate, endDate});
+            return Response.status(Response.Status.NO_CONTENT).build();
         }
 
-        LOGGER.log(Level.INFO, "no hist find for date startDate {0} endDate {1}", new Object[] {startDate, endDate});
-        return Response.status(Response.Status.NO_CONTENT).build();
+        return Response.status(Response.Status.BAD_REQUEST).build();
     }
-
 
     @GET
     @Path("/tubeByBrand")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getTubeByBrand(@QueryParam("brand") String brand) {
         LOGGER.log(Level.INFO, "get tube by brand {0}", brand);
+
+        if (brand == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
 
         List<TubesEntity> tubesByBrand = scadaBean.getTubesByBrand(brand);
         if (!tubesByBrand.isEmpty()) {
@@ -134,6 +134,10 @@ public class ScadaService {
     public Response getFittingByBrand(@QueryParam("brand") String brand) {
         LOGGER.log(Level.INFO, "get fitting by brand {0}", brand);
 
+        if (brand == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
         List<FittingsEntity> fittingsByBrand = scadaBean.getFittingsByBrand(brand);
         if (!fittingsByBrand.isEmpty()) {
             LOGGER.log(Level.INFO, "find fitting {0}", fittingsByBrand);
@@ -156,7 +160,11 @@ public class ScadaService {
     public Response getEntity(@QueryParam("muid") String muid) {
         LOGGER.log(Level.INFO, "get entity {0}", muid);
 
-        Jsonb jsonb = JsonbBuilder.create();
+        if (muid == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        Jsonb jsonb = JsonbBuilder.create(new JsonbConfig().withFormatting(true));
 
         TubesEntity tube = scadaBean.getTubeByMuid(muid);
         if (tube != null) {
@@ -179,12 +187,6 @@ public class ScadaService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public Response setTube(@QueryParam("muid") String muid, TubesEntity tube, @Context SecurityContext securityContext) {
-
-        System.out.println(securityContext.getUserPrincipal());
-        System.out.println(securityContext.isSecure());
-        System.out.println(securityContext.isUserInRole("ScadaServiceUser"));
-
-
         if (!securityContext.isUserInRole("USER")) {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
@@ -232,6 +234,10 @@ public class ScadaService {
     public Response removeEntity(@QueryParam("muid") String muid, @Context SecurityContext securityContext) {
         if (!securityContext.isUserInRole("USER")) {
             return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        if (muid == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
         LOGGER.log(Level.INFO, "remove entity {0}", muid);
