@@ -1,8 +1,9 @@
 package ru.tecon.scadaApi.entity.util;
 
+import ru.tecon.scadaApi.Constants;
+
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * Адаптер для разбора форматы даты из json/xml
@@ -10,15 +11,13 @@ import java.time.format.DateTimeFormatter;
  */
 public class LocalDateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
-
     @Override
     public LocalDateTime unmarshal(String dateString) {
-        return LocalDateTime.parse(dateString, FORMATTER);
+        return LocalDateTime.parse(dateString, Constants.DATE_TIME_FORMATTER);
     }
 
     @Override
     public String marshal(LocalDateTime localDateTime) {
-        return FORMATTER.format(localDateTime);
+        return Constants.DATE_TIME_FORMATTER.format(localDateTime);
     }
 }

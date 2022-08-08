@@ -1,10 +1,11 @@
 package ru.tecon.scadaApi.entity.util;
 
+import ru.tecon.scadaApi.Constants;
+
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ParamConverter;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 /**
@@ -13,12 +14,10 @@ import java.time.format.DateTimeParseException;
  */
 public class LocalDateTimeConverter implements ParamConverter<LocalDateTime> {
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
-
     @Override
     public LocalDateTime fromString(String value) {
         try {
-            return LocalDateTime.parse(value, FORMATTER);
+            return LocalDateTime.parse(value, Constants.DATE_TIME_FORMATTER);
         } catch (DateTimeParseException ex) {
             throw new WebApplicationException(ex, Response.Status.BAD_REQUEST);
         } catch (NullPointerException ex) {
@@ -28,6 +27,6 @@ public class LocalDateTimeConverter implements ParamConverter<LocalDateTime> {
 
     @Override
     public String toString(LocalDateTime value) {
-        return FORMATTER.format(value);
+        return Constants.DATE_TIME_FORMATTER.format(value);
     }
 }

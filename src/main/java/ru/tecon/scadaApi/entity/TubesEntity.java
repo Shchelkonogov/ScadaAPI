@@ -1,6 +1,7 @@
 package ru.tecon.scadaApi.entity;
 
 import org.hibernate.annotations.GenericGenerator;
+import ru.tecon.scadaApi.Constants;
 import ru.tecon.scadaApi.entity.util.LocalDateTimeAdapter;
 
 import javax.json.bind.annotation.JsonbDateFormat;
@@ -28,7 +29,7 @@ public class TubesEntity {
     private Long status;
     private String clientId;
 
-    @JsonbDateFormat("dd.MM.yyyy HH:mm:ss")
+    @JsonbDateFormat(Constants.DATE_TIME_FORMAT)
     @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
     private LocalDateTime timeStamp;
 
