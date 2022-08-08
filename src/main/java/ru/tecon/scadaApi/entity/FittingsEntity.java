@@ -230,7 +230,7 @@ public class FittingsEntity {
                 .add("fitDesc='" + fitDesc + "'")
                 .add("fitDu=" + fitDu)
                 .add("fitDriveType=" + fitDriveType)
-                .add("fitPower='" + fitPower + "'")
+                .add("fitPower=" + fitPower)
                 .add("fitStat=" + fitStat)
                 .add("fitBypassStat=" + fitBypassStat)
                 .add("fitJumperStat=" + fitJumperStat)
