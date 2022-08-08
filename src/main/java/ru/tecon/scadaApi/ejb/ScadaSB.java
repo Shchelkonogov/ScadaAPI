@@ -66,9 +66,6 @@ public class ScadaSB {
             return false;
         }
 
-        if (newTube.getBrand() != null) {
-            tube.setBrand(newTube.getBrand());
-        }
         if (newTube.getClientId() != null) {
             tube.setClientId(newTube.getClientId());
         }
@@ -127,9 +124,6 @@ public class ScadaSB {
             return false;
         }
 
-        if (newFitting.getBrand() != null) {
-            fitting.setBrand(newFitting.getBrand());
-        }
         if (newFitting.getFitName() != null) {
             fitting.setFitName(newFitting.getFitName());
         }
