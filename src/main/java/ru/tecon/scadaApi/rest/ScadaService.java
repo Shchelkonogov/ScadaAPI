@@ -5,6 +5,7 @@ import ru.tecon.scadaApi.entity.FittingsEntity;
 import ru.tecon.scadaApi.entity.HistLogEntity;
 import ru.tecon.scadaApi.entity.TubesEntity;
 import ru.tecon.scadaApi.entity.util.FittingsSerializer;
+import ru.tecon.scadaApi.entity.util.InterceptorRequired;
 import ru.tecon.scadaApi.entity.util.TubesSerializer;
 
 import javax.ejb.EJB;
@@ -186,6 +187,7 @@ public class ScadaService {
     @Path("/tube")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
+    @InterceptorRequired
     public Response setTube(@QueryParam("muid") String muid, TubesEntity tube, @Context SecurityContext securityContext) {
         if (!securityContext.isUserInRole("USER")) {
             return Response.status(Response.Status.FORBIDDEN).build();
@@ -210,6 +212,7 @@ public class ScadaService {
     @Path("/fitting")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
+    @InterceptorRequired
     public Response setFitting(@QueryParam("muid") String muid, FittingsEntity fitting, @Context SecurityContext securityContext) {
         if (!securityContext.isUserInRole("USER")) {
             return Response.status(Response.Status.FORBIDDEN).build();

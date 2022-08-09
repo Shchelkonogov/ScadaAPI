@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
  * @author Maksim Shchelkonogov
  */
 @Provider
+@InterceptorRequired
 public class MyInterceptor implements ReaderInterceptor {
 
     private static final Logger LOGGER = Logger.getLogger(MyInterceptor.class.getName());
