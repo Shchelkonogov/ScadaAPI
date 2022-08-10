@@ -36,6 +36,7 @@ public class HistLogEntity {
     @JsonbTransient
     private String operation;
     private String muid;
+    private String brand;
 
     @JsonbTransient
     private String clientId;
@@ -88,6 +89,16 @@ public class HistLogEntity {
     }
 
     @Basic
+    @Column(name = "brand")
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    @Basic
     @Column(name = "client_id")
     public String getClientId() {
         return clientId;
@@ -136,6 +147,7 @@ public class HistLogEntity {
                 Objects.equals(columnName, that.columnName) &&
                 Objects.equals(operation, that.operation) &&
                 Objects.equals(muid, that.muid) &&
+                Objects.equals(brand, that.brand) &&
                 Objects.equals(clientId, that.clientId) &&
                 Objects.equals(oldValueChar, that.oldValueChar) &&
                 Objects.equals(newValueChar, that.newValueChar) &&
@@ -144,7 +156,7 @@ public class HistLogEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(tableName, columnName, operation, muid, clientId, oldValueChar, newValueChar, timeStamp);
+        return Objects.hash(tableName, columnName, operation, muid, brand, clientId, oldValueChar, newValueChar, timeStamp);
     }
 
     @Override
@@ -154,6 +166,7 @@ public class HistLogEntity {
                 .add("columnName='" + columnName + "'")
                 .add("operation='" + operation + "'")
                 .add("muid='" + muid + "'")
+                .add("brand='" + brand + "'")
                 .add("clientId='" + clientId + "'")
                 .add("oldValueChar='" + oldValueChar + "'")
                 .add("newValueChar='" + newValueChar + "'")
