@@ -1,5 +1,8 @@
 package ru.tecon.scadaApi.ejb;
 
+import org.hibernate.exception.ConstraintViolationException;
+import org.postgresql.util.PSQLException;
+import ru.tecon.scadaApi.ScadaApiException;
 import ru.tecon.scadaApi.entity.FittingsEntity;
 import ru.tecon.scadaApi.entity.HistLogEntity;
 import ru.tecon.scadaApi.entity.TubesEntity;
@@ -47,23 +50,23 @@ public class ScadaSB {
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public boolean addTube(TubesEntity tube) {
+    public void addTube(TubesEntity tube) throws ScadaApiException {
         try {
             em.persist(tube);
+            em.flush();
         } catch (PersistenceException ex) {
             LOGGER.log(Level.WARNING, "error create tube", ex);
-            return false;
+            parsePersistenceError(ex, tube.getBrand());
         }
-        return true;
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public boolean updateTube(String muid, TubesEntity newTube) {
+    public void updateTube(String muid, TubesEntity newTube) throws ScadaApiException {
         TubesEntity tube = getTubeByMuid(muid);
 
         if (tube == null) {
             LOGGER.log(Level.WARNING, "no tube fined {0}", muid);
-            return false;
+            throw new ScadaApiException("no entity for muid " + muid);
         }
 
         if (newTube.getClientId() != null) {
@@ -75,11 +78,11 @@ public class ScadaSB {
 
         try {
             em.merge(tube);
+            em.flush();
         } catch (PersistenceException ex) {
             LOGGER.log(Level.WARNING, "error update tube", ex);
-            return false;
+            throw new ScadaApiException();
         }
-        return true;
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -105,23 +108,23 @@ public class ScadaSB {
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public boolean addFitting(FittingsEntity fitting) {
+    public void addFitting(FittingsEntity fitting) throws ScadaApiException {
         try {
             em.persist(fitting);
+            em.flush();
         } catch (PersistenceException ex) {
             LOGGER.log(Level.WARNING, "error create fitting", ex);
-            return false;
+            parsePersistenceError(ex, fitting.getBrand());
         }
-        return true;
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public boolean updateFitting(String muid, FittingsEntity newFitting) {
+    public void updateFitting(String muid, FittingsEntity newFitting) throws ScadaApiException {
         FittingsEntity fitting = getFittingByMuid(muid);
 
         if (fitting == null) {
             LOGGER.log(Level.WARNING, "no fitting find {0}", muid);
-            return false;
+            throw new ScadaApiException("no entity for muid " + muid);
         }
 
         if (newFitting.getFitName() != null) {
@@ -160,11 +163,11 @@ public class ScadaSB {
 
         try {
             em.merge(fitting);
+            em.flush();
         } catch (PersistenceException ex) {
             LOGGER.log(Level.WARNING, "error update fitting", ex);
-            return false;
+            throw new ScadaApiException();
         }
-        return true;
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -204,5 +207,19 @@ public class ScadaSB {
         query.setParameter(1, startDate);
         query.setParameter(2, endDate);
         return query.getResultList();
+    }
+
+    private void parsePersistenceError(PersistenceException ex, String notUniquePrefix) throws ScadaApiException {
+        if (ex.getCause() instanceof ConstraintViolationException) {
+            ConstraintViolationException constraintEx = (ConstraintViolationException) ex.getCause();
+            if (constraintEx.getCause() instanceof PSQLException) {
+                PSQLException psqlEx = (PSQLException) constraintEx.getCause();
+                switch (psqlEx.getServerErrorMessage().getSQLState()) {
+                    case "23502": throw new ScadaApiException("brand must be not null");
+                    case "23505": throw new ScadaApiException(notUniquePrefix + " not unique");
+                }
+            }
+        }
+        throw new ScadaApiException();
     }
 }

@@ -1,5 +1,6 @@
 package ru.tecon.scadaApi.rest;
 
+import ru.tecon.scadaApi.ScadaApiException;
 import ru.tecon.scadaApi.ejb.ScadaSB;
 import ru.tecon.scadaApi.entity.FittingsEntity;
 import ru.tecon.scadaApi.entity.HistLogEntity;
@@ -193,19 +194,23 @@ public class ScadaService {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
 
-        boolean result;
-
-        if (muid != null) {
-            LOGGER.log(Level.INFO, "update tube {0} new data {1}", new Object[] {muid, tube});
-            result = scadaBean.updateTube(muid, tube);
-        } else {
-            LOGGER.log(Level.INFO, "create tube {0}", tube);
-            result = scadaBean.addTube(tube);
+        try {
+            if (muid != null) {
+                LOGGER.log(Level.INFO, "update tube {0} new data {1}", new Object[] {muid, tube});
+                scadaBean.updateTube(muid, tube);
+            } else {
+                LOGGER.log(Level.INFO, "create tube {0}", tube);
+                scadaBean.addTube(tube);
+            }
+        } catch (ScadaApiException ex) {
+            if (ex.getMessage() != null) {
+                return Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage()).build();
+            } else {
+                Response.status(Response.Status.NO_CONTENT).build();
+            }
         }
 
-        return result ?
-                Response.status(Response.Status.CREATED).entity(tube.getMuid()).build() :
-                Response.status(Response.Status.NO_CONTENT).build();
+        return Response.status(Response.Status.CREATED).entity(tube.getMuid()).build();
     }
 
     @POST
@@ -218,18 +223,23 @@ public class ScadaService {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
 
-        boolean result;
-
-        if (muid != null) {
-            LOGGER.log(Level.INFO, "update fitting {0} new data {1}", new Object[] {muid, fitting});
-            result = scadaBean.updateFitting(muid, fitting);
-        } else {
-            LOGGER.log(Level.INFO, "create fitting {0}", fitting);
-            result = scadaBean.addFitting(fitting);
+        try {
+            if (muid != null) {
+                LOGGER.log(Level.INFO, "update fitting {0} new data {1}", new Object[] {muid, fitting});
+                scadaBean.updateFitting(muid, fitting);
+            } else {
+                LOGGER.log(Level.INFO, "create fitting {0}", fitting);
+                scadaBean.addFitting(fitting);
+            }
+        } catch (ScadaApiException ex) {
+            if (ex.getMessage() != null) {
+                return Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage()).build();
+            } else {
+                return Response.status(Response.Status.NO_CONTENT).build();
+            }
         }
-        return result ?
-                Response.status(Response.Status.CREATED).entity(fitting.getMuid()).build() :
-                Response.status(Response.Status.NO_CONTENT).build();
+
+        return Response.status(Response.Status.CREATED).entity(fitting.getMuid()).build();
     }
 
     @DELETE
