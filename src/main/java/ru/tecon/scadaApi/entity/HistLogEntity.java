@@ -37,10 +37,7 @@ public class HistLogEntity {
     private String operation;
     private String muid;
     private String brand;
-
-    @JsonbTransient
     private String clientId;
-
     private String oldValueChar;
     private String newValueChar;
 
