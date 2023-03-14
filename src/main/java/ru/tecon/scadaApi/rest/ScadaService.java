@@ -187,7 +187,7 @@ public class ScadaService {
     @POST
     @Path("/tube")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.TEXT_PLAIN + "; charset=UTF-8")
     @InterceptorRequired
     public Response setTube(@QueryParam("muid") String muid, TubesEntity tube, @Context SecurityContext securityContext) {
         if (!securityContext.isUserInRole("USER")) {
@@ -216,7 +216,7 @@ public class ScadaService {
     @POST
     @Path("/fitting")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.TEXT_PLAIN + "; charset=UTF-8")
     @InterceptorRequired
     public Response setFitting(@QueryParam("muid") String muid, FittingsEntity fitting, @Context SecurityContext securityContext) {
         if (!securityContext.isUserInRole("USER")) {
