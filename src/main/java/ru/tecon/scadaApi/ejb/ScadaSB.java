@@ -1,6 +1,7 @@
 package ru.tecon.scadaApi.ejb;
 
 import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.exception.DataException;
 import org.postgresql.util.PSQLException;
 import ru.tecon.scadaApi.ScadaApiException;
 import ru.tecon.scadaApi.entity.FittingsEntity;
@@ -220,6 +221,13 @@ public class ScadaSB {
                 }
             }
         }
-        throw new ScadaApiException();
+        if (ex.getCause() instanceof DataException) {
+            DataException dataEx = (DataException) ex.getCause();
+            if (dataEx.getCause() instanceof PSQLException) {
+                PSQLException psqlEx = (PSQLException) dataEx.getCause();
+                throw new ScadaApiException(psqlEx.getMessage());
+            }
+        }
+        throw new ScadaApiException("Server error");
     }
 }
