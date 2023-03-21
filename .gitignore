@@ -1,4 +1,5 @@
 *.iml
 /.idea
 /src/test/*
+/target/
 *.http

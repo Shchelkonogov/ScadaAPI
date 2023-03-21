@@ -211,23 +211,30 @@ public class ScadaSB {
     }
 
     private void parsePersistenceError(PersistenceException ex, String notUniquePrefix) throws ScadaApiException {
+        PSQLException psqlEx = null;
+
         if (ex.getCause() instanceof ConstraintViolationException) {
             ConstraintViolationException constraintEx = (ConstraintViolationException) ex.getCause();
             if (constraintEx.getCause() instanceof PSQLException) {
-                PSQLException psqlEx = (PSQLException) constraintEx.getCause();
-                switch (psqlEx.getServerErrorMessage().getSQLState()) {
-                    case "23502": throw new ScadaApiException("brand must be not null");
-                    case "23505": throw new ScadaApiException(notUniquePrefix + " not unique");
-                }
+                psqlEx = (PSQLException) constraintEx.getCause();
             }
         }
+
         if (ex.getCause() instanceof DataException) {
             DataException dataEx = (DataException) ex.getCause();
             if (dataEx.getCause() instanceof PSQLException) {
-                PSQLException psqlEx = (PSQLException) dataEx.getCause();
-                throw new ScadaApiException(psqlEx.getMessage());
+                psqlEx = (PSQLException) dataEx.getCause();
             }
         }
+
+        if (psqlEx != null) {
+            switch (psqlEx.getServerErrorMessage().getSQLState()) {
+                case "23502": throw new ScadaApiException("brand must be not null");
+                case "23505": throw new ScadaApiException(notUniquePrefix + " not unique");
+                case "22001": throw new ScadaApiException("value too long for type");
+            }
+        }
+
         throw new ScadaApiException("Server error");
     }
 }
