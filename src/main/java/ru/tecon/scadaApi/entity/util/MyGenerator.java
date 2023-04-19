@@ -11,6 +11,7 @@ import java.io.Serializable;
 
 /**
  * Генератор для создания id в базе, для entity
+ *
  * @author Maksim Shchelkonogov
  */
 public class MyGenerator implements IdentifierGenerator {

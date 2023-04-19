@@ -10,6 +10,7 @@ import java.time.format.DateTimeParseException;
 
 /**
  * Конвертер для JAX-RS {@link javax.ws.rs.QueryParam} тип {@link LocalDateTime}
+ *
  * @author Maksim Shchelkonogov
  */
 public class LocalDateTimeConverter implements ParamConverter<LocalDateTime> {

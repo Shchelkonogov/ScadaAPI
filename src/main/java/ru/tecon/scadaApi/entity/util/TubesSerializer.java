@@ -7,6 +7,8 @@ import javax.json.bind.serializer.SerializationContext;
 import javax.json.stream.JsonGenerator;
 
 /**
+ * Serializer json для объекта {@link TubesEntity} с добавлением поля {@link TubesEntity#getMuid()}
+ *
  * @author Maksim Shchelkonogov
  */
 public class TubesSerializer implements JsonbSerializer<TubesEntity> {

@@ -6,12 +6,14 @@ import org.postgresql.util.PSQLException;
 import ru.tecon.scadaApi.ScadaApiException;
 import ru.tecon.scadaApi.entity.FittingsEntity;
 import ru.tecon.scadaApi.entity.HistLogEntity;
+import ru.tecon.scadaApi.entity.PassportEntity;
 import ru.tecon.scadaApi.entity.TubesEntity;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
@@ -23,13 +25,15 @@ import java.util.logging.Logger;
 
 /**
  * Сервис для работы с задвижками и трубами
+ *
  * @author Maksim Shchelkonogov
  */
 @Stateless
 @LocalBean
 public class ScadaSB {
 
-    private static final Logger LOGGER = Logger.getLogger(ScadaSB.class.getName());
+    @Inject
+    private Logger logger;
 
     @PersistenceContext(unitName = "PostgreDB")
     private EntityManager em;
@@ -56,8 +60,8 @@ public class ScadaSB {
             em.persist(tube);
             em.flush();
         } catch (PersistenceException ex) {
-            LOGGER.log(Level.WARNING, "error create tube", ex);
-            parsePersistenceError(ex, tube.getBrand());
+            logger.log(Level.WARNING, "error create tube", ex);
+            parsePersistenceError(ex);
         }
     }
 
@@ -66,7 +70,7 @@ public class ScadaSB {
         TubesEntity tube = getTubeByMuid(muid);
 
         if (tube == null) {
-            LOGGER.log(Level.WARNING, "no tube fined {0}", muid);
+            logger.log(Level.WARNING, "no tube fined {0}", muid);
             throw new ScadaApiException("no entity for muid " + muid);
         }
 
@@ -81,7 +85,7 @@ public class ScadaSB {
             em.merge(tube);
             em.flush();
         } catch (PersistenceException ex) {
-            LOGGER.log(Level.WARNING, "error update tube", ex);
+            logger.log(Level.WARNING, "error update tube", ex);
             throw new ScadaApiException();
         }
     }
@@ -91,14 +95,14 @@ public class ScadaSB {
         TubesEntity tube = getTubeByMuid(muid);
 
         if (tube == null) {
-            LOGGER.log(Level.WARNING, "no tube fined {0}", muid);
+            logger.log(Level.WARNING, "no tube fined {0}", muid);
             return false;
         }
 
         try {
             em.remove(tube);
         } catch (PersistenceException ex) {
-            LOGGER.log(Level.WARNING, "error remove tube", ex);
+            logger.log(Level.WARNING, "error remove tube", ex);
             return false;
         }
         return true;
@@ -114,8 +118,8 @@ public class ScadaSB {
             em.persist(fitting);
             em.flush();
         } catch (PersistenceException ex) {
-            LOGGER.log(Level.WARNING, "error create fitting", ex);
-            parsePersistenceError(ex, fitting.getBrand());
+            logger.log(Level.WARNING, "error create fitting", ex);
+            parsePersistenceError(ex);
         }
     }
 
@@ -124,7 +128,7 @@ public class ScadaSB {
         FittingsEntity fitting = getFittingByMuid(muid);
 
         if (fitting == null) {
-            LOGGER.log(Level.WARNING, "no fitting find {0}", muid);
+            logger.log(Level.WARNING, "no fitting find {0}", muid);
             throw new ScadaApiException("no entity for muid " + muid);
         }
 
@@ -166,7 +170,7 @@ public class ScadaSB {
             em.merge(fitting);
             em.flush();
         } catch (PersistenceException ex) {
-            LOGGER.log(Level.WARNING, "error update fitting", ex);
+            logger.log(Level.WARNING, "error update fitting", ex);
             throw new ScadaApiException();
         }
     }
@@ -176,27 +180,27 @@ public class ScadaSB {
         FittingsEntity fitting = getFittingByMuid(muid);
 
         if (fitting == null) {
-            LOGGER.log(Level.WARNING, "no fitting find {0}", muid);
+            logger.log(Level.WARNING, "no fitting find {0}", muid);
             return false;
         }
 
         try {
             em.remove(fitting);
         } catch (PersistenceException ex) {
-            LOGGER.log(Level.WARNING, "error remove fitting", ex);
+            logger.log(Level.WARNING, "error remove fitting", ex);
             return false;
         }
         return true;
     }
 
     public List<HistLogEntity> getHistByMuid(String muid) {
-        TypedQuery<HistLogEntity> query = em.createNamedQuery("HistLogEnity.byMuid", HistLogEntity.class);
+        TypedQuery<HistLogEntity> query = em.createNamedQuery("HistLogEntity.byMuid", HistLogEntity.class);
         query.setParameter(1, muid);
         return query.getResultList();
     }
 
     public List<HistLogEntity> getHistByMuidAndDate(String muid, LocalDateTime startDate, LocalDateTime endDate) {
-        TypedQuery<HistLogEntity> query = em.createNamedQuery("HistLogEnity.byMuidAndDate", HistLogEntity.class);
+        TypedQuery<HistLogEntity> query = em.createNamedQuery("HistLogEntity.byMuidAndDate", HistLogEntity.class);
         query.setParameter(1, muid);
         query.setParameter(2, startDate);
         query.setParameter(3, endDate);
@@ -204,13 +208,13 @@ public class ScadaSB {
     }
 
     public List<HistLogEntity> getHistByDate(LocalDateTime startDate, LocalDateTime endDate) {
-        TypedQuery<HistLogEntity> query = em.createNamedQuery("HistLogEnity.byDate", HistLogEntity.class);
+        TypedQuery<HistLogEntity> query = em.createNamedQuery("HistLogEntity.byDate", HistLogEntity.class);
         query.setParameter(1, startDate);
         query.setParameter(2, endDate);
         return query.getResultList();
     }
 
-    private void parsePersistenceError(PersistenceException ex, String notUniquePrefix) throws ScadaApiException {
+    private void parsePersistenceError(PersistenceException ex) throws ScadaApiException {
         PSQLException psqlEx = null;
 
         if (ex.getCause() instanceof ConstraintViolationException) {
@@ -227,14 +231,79 @@ public class ScadaSB {
             }
         }
 
-        if (psqlEx != null) {
+        if ((psqlEx != null) && (psqlEx.getServerErrorMessage() != null) && (psqlEx.getServerErrorMessage().getSQLState() != null))  {
             switch (psqlEx.getServerErrorMessage().getSQLState()) {
-                case "23502": throw new ScadaApiException("brand must be not null");
-                case "23505": throw new ScadaApiException(notUniquePrefix + " not unique");
-                case "22001": throw new ScadaApiException("value too long for type");
+                case "23502":
+                    throw new ScadaApiException("Column " + psqlEx.getServerErrorMessage().getColumn() + " must be not null");
+                case "23505":
+                    throw new ScadaApiException("Column not unique. " + psqlEx.getServerErrorMessage().getDetail());
+                case "22001":
+                    throw new ScadaApiException("Value too long for type");
             }
         }
 
         throw new ScadaApiException("Server error");
+    }
+
+    public PassportEntity getPassportByMuid(long muid) {
+        return em.find(PassportEntity.class, muid);
+    }
+
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public boolean deletePassport(long muid) {
+        PassportEntity passport = getPassportByMuid(muid);
+
+        if (passport == null) {
+            logger.log(Level.WARNING, "no passport find {0}", muid);
+            return false;
+        }
+
+        try {
+            em.remove(passport);
+        } catch (PersistenceException ex) {
+            logger.log(Level.WARNING, "error remove passport " + passport, ex);
+            return false;
+        }
+        return true;
+    }
+
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void addPassport(PassportEntity passport) throws ScadaApiException {
+        try {
+            em.persist(passport);
+            em.flush();
+        } catch (PersistenceException ex) {
+            logger.log(Level.WARNING, "error create passport", ex);
+            parsePersistenceError(ex);
+        }
+    }
+
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void updatePassport(long muid, PassportEntity newPassport) throws ScadaApiException {
+        PassportEntity passport = getPassportByMuid(muid);
+
+        if (passport == null) {
+            logger.log(Level.WARNING, "no passport find {0}", muid);
+            throw new ScadaApiException("no passport for muid " + muid);
+        }
+
+        if (newPassport.getAddress() != null) {
+            passport.setAddress(newPassport.getAddress());
+        }
+        if (newPassport.getFirstName() != null) {
+            passport.setFirstName(newPassport.getFirstName());
+        }
+        if (newPassport.getSecondName() != null) {
+            passport.setSecondName(newPassport.getSecondName());
+        }
+        passport.setStatus(newPassport.getStatus());
+
+        try {
+            em.merge(passport);
+            em.flush();
+        } catch (PersistenceException ex) {
+            logger.log(Level.WARNING, "error update passport", ex);
+            throw new ScadaApiException();
+        }
     }
 }

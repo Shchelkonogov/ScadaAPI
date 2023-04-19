@@ -4,6 +4,7 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * Программные константы
+ *
  * @author Maksim Shchelkonogov
  */
 public class Constants {

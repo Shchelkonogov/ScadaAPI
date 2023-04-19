@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 
 /**
  * Провайдер для JAX-RS {@link javax.ws.rs.QueryParam} добавил тип {@link LocalDateTime}
+ *
  * @author Maksim Shchelkonogov
  */
 @Provider

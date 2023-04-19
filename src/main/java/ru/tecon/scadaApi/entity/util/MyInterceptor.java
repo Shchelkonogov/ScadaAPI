@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 /**
  * Перехватчик сообщений переданных по JAX-RS
+ *
  * @author Maksim Shchelkonogov
  */
 @Provider

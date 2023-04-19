@@ -53,9 +53,9 @@
         <class>ru.tecon.scadaApi.entity.FittingsEntity</class>
         <class>ru.tecon.scadaApi.entity.TubesEntity</class>
         <class>ru.tecon.scadaApi.entity.HistLogEntity</class>
+        <class>ru.tecon.scadaApi.entity.PassportEntity</class>
 
         <properties>
-<!--            <property name="hibernate.transaction.jta.platform" value="org.hibernate.service.jta.platform.internal.WeblogicJtaPlatform"/>-->
             <property name="hibernate.transaction.jta.platform" value="org.hibernate.service.jta.platform.internal.SunOneJtaPlatform" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL95Dialect"/>
         </properties>

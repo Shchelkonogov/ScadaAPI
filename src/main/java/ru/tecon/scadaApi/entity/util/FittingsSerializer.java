@@ -7,6 +7,8 @@ import javax.json.bind.serializer.SerializationContext;
 import javax.json.stream.JsonGenerator;
 
 /**
+ * Serializer json для объекта {@link FittingsEntity} с добавлением поля {@link FittingsEntity#getMuid()}
+ *
  * @author Maksim Shchelkonogov
  */
 public class FittingsSerializer implements JsonbSerializer<FittingsEntity> {

@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 /**
  * Адаптер для разбора форматы даты из json/xml
+ *
  * @author Maksim Shchelkonogov
  */
 public class LocalDateTimeAdapter extends XmlAdapter<String, LocalDateTime> {

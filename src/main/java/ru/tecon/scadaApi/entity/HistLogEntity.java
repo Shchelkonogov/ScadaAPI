@@ -20,9 +20,9 @@ import java.util.StringJoiner;
 @Table(name = "hist_log", schema = "scada", catalog = "postgres")
 @IdClass(HistLogEntityPK.class)
 @NamedQueries({
-        @NamedQuery(name = "HistLogEnity.byMuid", query = "select e from HistLogEntity e where e.muid = ?1"),
-        @NamedQuery(name = "HistLogEnity.byDate", query = "select e from HistLogEntity e where e.timeStamp >= ?1 and e.timeStamp <= ?2"),
-        @NamedQuery(name = "HistLogEnity.byMuidAndDate", query = "select e from HistLogEntity e where e.muid = ?1 and e.timeStamp >= ?2 and e.timeStamp <= ?3")
+        @NamedQuery(name = "HistLogEntity.byMuid", query = "select e from HistLogEntity e where e.muid = ?1"),
+        @NamedQuery(name = "HistLogEntity.byDate", query = "select e from HistLogEntity e where e.timeStamp >= ?1 and e.timeStamp <= ?2"),
+        @NamedQuery(name = "HistLogEntity.byMuidAndDate", query = "select e from HistLogEntity e where e.muid = ?1 and e.timeStamp >= ?2 and e.timeStamp <= ?3")
 })
 @XmlRootElement
 public class HistLogEntity {

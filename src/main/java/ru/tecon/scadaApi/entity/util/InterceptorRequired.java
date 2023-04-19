@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  * Аннотация для прикрепления перехватчика
+ *
  * @author Maksim Shchelkonogov
  */
 @NameBinding
